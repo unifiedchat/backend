@@ -6,7 +6,11 @@ import CONFIG from './config';
 import { SessionModule } from '@modules/session/session.module';
 
 @Module({
-  imports: [MongooseModule.forRoot(CONFIG.MONGO_URL), UserModule, SessionModule],
+  imports: [
+    MongooseModule.forRoot(CONFIG.MONGO_URL),
+    UserModule,
+    SessionModule,
+  ],
   controllers: [AppController],
   providers: [],
 })
