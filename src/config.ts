@@ -1,18 +1,21 @@
-import * as dotenv from 'dotenv';
-dotenv.config();
+import { config } from "dotenv";
 
-interface Config {
-  VERSION: string;
-  ORIGINS: string[];
-  SECRET: string;
-  MONGO_URL: string;
-}
+config();
 
-const CONFIG: Config = {
-  VERSION: process.env.VERSION || '1.0.0',
-  ORIGINS: process.env.ORIGINS ? process.env.ORIGINS.split(',') : [],
-  SECRET: process.env.SECRET,
-  MONGO_URL: process.env.MONGO_URL,
+export const factory = () => {
+	return {
+		PORT: parseInt(process.env.PORT),
+		API_VERSION: process.env.API_VERSION,
+		POSTGRES: {
+			host: process.env.POSTGRES_HOST,
+			port: parseInt(process.env.POSTGRES_PORT),
+			username: process.env.POSTGRES_USER,
+			password: process.env.POSTGRES_PASSWORD,
+			database: process.env.POSTGRES_DB_NAME,
+		},
+		SECRET: process.env.SECRET,
+		EPOCH: new Date("2022-11-15T00:00:00Z").getTime(),
+	};
 };
 
-export default CONFIG;
+export const CONFIG = factory();

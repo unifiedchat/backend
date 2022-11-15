@@ -1,17 +1,22 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
-import { UserService } from './user.service';
-import { Throttle } from '@nestjs/throttler';
-import { CreateUserDto } from './etc/create-user.dto';
+import { Flags } from "@decorators/flags.decorator";
+import { User } from "@decorators/user.decorator";
+import { AuthGuard } from "@guards/auth.guard";
+import { Controller, Get, HttpStatus, UseGuards } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
 
-@Controller('user')
-@ApiTags('User')
+@Controller("user")
+@ApiTags("User")
 export class UserController {
-  constructor(private readonly userService: UserService) {}
-
-  @Throttle(1, 60 * 8)
-  @Post()
-  async create(@Body() createDTO: CreateUserDto) {
-    return await this.userService.create(createDTO);
-  }
+	@Flags("user")
+	@Get()
+	@UseGuards(AuthGuard)
+	public async getMe(
+		@User() user: UnifiedChat.APIUser,
+	): Promise<UnifiedChat.APIRes<UnifiedChat.APIUser>> {
+		return {
+			statusCode: HttpStatus.OK,
+			message: "Get personal info.",
+			data: user,
+		};
+	}
 }

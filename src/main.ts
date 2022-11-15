@@ -1,58 +1,60 @@
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { CONFIG } from "@config";
+import helmet from "@fastify/helmet";
+import { ValidationPipe } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
 import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify';
-import * as morgan from 'morgan';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppModule } from './app.module';
-import CONFIG from './config';
+	FastifyAdapter,
+	NestFastifyApplication,
+} from "@nestjs/platform-fastify";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import * as morgan from "morgan";
+import { AppModule } from "./app.module";
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
-    new FastifyAdapter(),
-  );
+	const app = await NestFactory.create<NestFastifyApplication>(
+		AppModule,
+		new FastifyAdapter(),
+	);
 
-  app.use(
-    morgan(':remote-addr :url :method :req[origin] :status :response-time ms'),
-  );
+	app.getHttpAdapter()
+		.getInstance()
+		.register(morgan("dev"))
+		.register(helmet, {
+			contentSecurityPolicy: {
+				directives: {
+					defaultSrc: [`'self'`],
+					styleSrc: [`'self'`, `'unsafe-inline'`],
+					imgSrc: [`'self'`, "data:", "validator.swagger.io"],
+					scriptSrc: [`'self'`, `https: 'unsafe-inline'`],
+				},
+			},
+		});
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      // disableErrorMessages: true,
-      transform: true,
-      whitelist: true, // Delete properties which is not in dto
-      forbidNonWhitelisted: true,
-      forbidUnknownValues: true,
-      // skipMissingProperties: true,
-    }),
-  );
+	app.enableCors();
 
-  app.enableCors({
-    origin: CONFIG.ORIGINS,
-    methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
-    credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  });
+	app.setGlobalPrefix(CONFIG.API_VERSION);
+	app.useGlobalPipes(
+		new ValidationPipe({
+			transform: true,
+		}),
+	);
 
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Boilerplate')
-    .setDescription('Ping Pong Documentation')
-    .setVersion(CONFIG.VERSION)
-    .addBearerAuth()
-    .build();
+	const config = new DocumentBuilder()
+		.setTitle("Unified Chat API Docs")
+		.setDescription("Unified Chat endpoints")
+		.setVersion("1.0")
+		.addBearerAuth()
+		.build();
+	const document = SwaggerModule.createDocument(app, config, {
+		deepScanRoutes: true,
+	});
+	SwaggerModule.setup("api", app, document, {
+		explorer: true,
+	});
 
-  const document = SwaggerModule.createDocument(app, swaggerConfig, {
-    deepScanRoutes: true,
-  });
-  SwaggerModule.setup('docs', app, document, {
-    explorer: true,
-  });
+	console.log(CONFIG.PORT);
 
-  await app.listen(3000);
+	await app.listen(CONFIG.PORT, "0.0.0.0");
 }
+
 bootstrap();

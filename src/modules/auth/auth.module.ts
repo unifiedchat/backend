@@ -1,11 +1,11 @@
-import { UserModel } from "@models/user.model";
-import { AuthModule } from "@modules/auth/auth.module";
-import { UserController } from "@modules/user/user.controller";
-import { UserService } from "@modules/user/user.service";
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
 import { SequelizeModule } from "@nestjs/sequelize";
+import { UserModel } from "@models/user.model";
+import { UserService } from "@modules/user/user.service";
+import { AuthController } from "@modules/auth/auth.controller";
+import { AuthService } from "@modules/auth/auth.service";
 
 @Module({
 	imports: [
@@ -17,10 +17,9 @@ import { SequelizeModule } from "@nestjs/sequelize";
 			}),
 			inject: [ConfigService],
 		}),
-		AuthModule,
 	],
-	controllers: [UserController],
-	providers: [UserService],
-	exports: [SequelizeModule, UserService, JwtModule],
+	controllers: [AuthController],
+	providers: [AuthService, UserService],
+	exports: [AuthService, SequelizeModule],
 })
-export class UserModule {}
+export class AuthModule {}
