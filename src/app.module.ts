@@ -8,6 +8,7 @@ import { APP_GUARD } from "@nestjs/core";
 import { SequelizeModule } from "@nestjs/sequelize";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { AppController } from "./app.controller";
+import { ConnectionModule } from "@modules/connection/connection.module";
 
 @Module({
 	imports: [
@@ -33,6 +34,7 @@ import { AppController } from "./app.controller";
 			}),
 			inject: [ConfigService],
 		}),
+		ConnectionModule,
 		HealthModule,
 		AuthModule,
 		UserModule,

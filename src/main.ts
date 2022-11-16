@@ -52,8 +52,6 @@ async function bootstrap() {
 		explorer: true,
 	});
 
-	console.log(CONFIG.PORT);
-
 	await app.listen(CONFIG.PORT, "0.0.0.0");
 }
 
