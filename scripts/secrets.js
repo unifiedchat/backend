@@ -72,7 +72,7 @@ async function getSecrets() {
 		});
 
 		for (const secret of data.data.filter(
-			(k) => !k.startsWith("VAULT_") || k === "PORT",
+			(k) => !k.key.startsWith("VAULT_") || k.key === "PORT",
 		)) {
 			saved_secrets[secret.key] = secret.value;
 		}
