@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Post, UseGuards } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { AuthGuard } from "@guards/auth.guard";
 import { Flags } from "@decorators/flags.decorator";
