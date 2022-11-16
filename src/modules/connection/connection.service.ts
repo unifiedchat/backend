@@ -7,6 +7,7 @@ import {
 import { HttpService } from "@nestjs/axios";
 import { InjectModel } from "@nestjs/sequelize";
 import { ConnectionModel } from "@models/connection.model";
+import { AxiosResponse } from "axios";
 import { CONFIG } from "@config";
 
 enum ConnectionType {
@@ -43,7 +44,7 @@ export class ConnectionService {
 			grant_type: "authorization_code",
 		};
 
-		const response: any = await this.httpService
+		const response: AxiosResponse = await this.httpService
 			.post("https://oauth2.googleapis.com/token", data)
 			.toPromise()
 			.catch((err) => {
@@ -82,7 +83,7 @@ export class ConnectionService {
 			mine: true,
 		};
 
-		const response: any = await this.httpService
+		const response: AxiosResponse = await this.httpService
 			.get(CONFIG.API_URLS.youtube + "channels", {
 				params: data,
 				headers: {
