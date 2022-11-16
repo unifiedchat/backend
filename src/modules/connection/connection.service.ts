@@ -70,7 +70,7 @@ export class ConnectionService {
 		});
 
 		return {
-			statusCode: 200,
+			statusCode: 201,
 			message: "Connection created.",
 			data: model.access_token,
 		};
