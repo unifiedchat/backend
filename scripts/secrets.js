@@ -29,7 +29,7 @@ switch (command) {
 async function postSecrets() {
 	try {
 		const secrets = Object.keys(saved_secrets)
-			.filter((k) => !k.startsWith("VAULT_"))
+			.filter((k) => !k.startsWith("VAULT_") || k === "PORT")
 			.map((k) => ({
 				key: k,
 				value: saved_secrets[k],
@@ -61,7 +61,9 @@ async function getSecrets() {
 			},
 		});
 
-		for (const secret of data.data) {
+		for (const secret of data.data.filter(
+			(k) => !k.startsWith("VAULT_") || k === "PORT",
+		)) {
 			saved_secrets[secret.key] = secret.value;
 		}
 
