@@ -2,6 +2,10 @@ name: Deploy to Fly.io
 
 on: [push]
 
+env:
+    VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
+    VAULT_URL: ${{ secrets.VAULT_URL }}
+
 jobs:
     deploy:
         name: Deploy app
