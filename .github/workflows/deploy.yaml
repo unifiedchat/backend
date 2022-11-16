@@ -2,10 +2,6 @@ name: Deploy to Fly.io
 
 on: [push]
 
-env:
-    VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
-    VAULT_URL: ${{ secrets.VAULT_URL }}
-
 jobs:
     deploy:
         name: Deploy app
@@ -17,7 +13,6 @@ jobs:
                   node-version: "18.x"
                   registry-url: "https://registry.npmjs.org"
             - run: yarn
-            - run: yarn secrets:get
             - run: yarn build
             - run: yarn test
             - uses: superfly/flyctl-actions/setup-flyctl@master
