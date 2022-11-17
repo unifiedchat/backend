@@ -1,4 +1,4 @@
-# fly.toml file generated for unifiedchat-backend on 2022-11-16T10:43:27+03:00
+# fly.toml file generated for unifiedchat-backend on 2022-11-17T13:05:46+03:00
 
 app = "unifiedchat-backend"
 kill_signal = "SIGINT"
