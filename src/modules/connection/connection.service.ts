@@ -1,18 +1,17 @@
+import { CONFIG } from "@config";
+import { CreateConnectionDTO } from "@dto/create-connection.dto";
+import { ConnectionModel } from "@models/connection.model";
+import { HttpService } from "@nestjs/axios";
 import {
 	ConflictException,
+	HttpStatus,
 	Injectable,
 	InternalServerErrorException,
 	NotFoundException,
 } from "@nestjs/common";
-import { HttpService } from "@nestjs/axios";
 import { InjectModel } from "@nestjs/sequelize";
-import { ConnectionModel } from "@models/connection.model";
+import { SHARED } from "@shared";
 import { AxiosResponse } from "axios";
-import { CONFIG } from "@config";
-
-enum ConnectionType {
-	YOUTUBE = "youtube",
-}
 
 @Injectable()
 export class ConnectionService {
@@ -22,14 +21,14 @@ export class ConnectionService {
 		private readonly httpService: HttpService,
 	) {}
 
-	public async createConnectionForYoutube(
-		code: string,
-		user: UnifiedChat.APIUser,
-	): Promise<UnifiedChat.APIRes<any>> {
+	public async createYouTubeConnection(
+		{ code }: CreateConnectionDTO,
+		{ id }: UnifiedChat.APIUser,
+	): Promise<UnifiedChat.APIRes<string>> {
 		const conflicted = await this.connectionModel.findOne({
 			where: {
-				user: user.id,
-				platform: ConnectionType.YOUTUBE,
+				user: id,
+				platform: UnifiedChat.ConnectionType.YOUTUBE,
 			},
 		});
 
@@ -51,32 +50,34 @@ export class ConnectionService {
 				throw new InternalServerErrorException(err.response.data.error);
 			});
 
-		const channel = await this.getMyChannelOfYoutube(
+		const youTubeInfo = await this.getYouTubeChannel(
 			response.data.access_token,
 		);
 
-		if (!channel.data.items[0])
+		if (!youTubeInfo?.data?.items?.length)
 			throw new NotFoundException("Channel not found");
 
+		const channel = youTubeInfo.data.items[0];
+
 		const model = await this.connectionModel.create({
-			user: user.id,
-			platform: ConnectionType.YOUTUBE,
-			display_name: channel.data.items[0].snippet.title,
-			medium_thumbnail:
-				channel.data.items[0].snippet.thumbnails.medium.url,
-			published_at: channel.data.items[0].snippet.publishedAt,
+			id: SHARED.Snowflake.generate(),
+			user: id,
+			platform: UnifiedChat.ConnectionType.YOUTUBE,
+			display_name: channel.snippet.title,
+			medium_thumbnail: channel.snippet.thumbnails.medium.url,
+			published_at: channel.snippet.publishedAt,
 			expires_in: response.data.expires_in,
 			access_token: response.data.access_token,
 		});
 
 		return {
-			statusCode: 201,
+			statusCode: HttpStatus.CREATED,
 			message: "Connection created.",
 			data: model.access_token,
 		};
 	}
 
-	private async getMyChannelOfYoutube(access_token: string) {
+	private async getYouTubeChannel(access_token: string) {
 		const data = {
 			part: "snippet,contentDetails,statistics",
 			access_token: access_token,
@@ -90,6 +91,7 @@ export class ConnectionService {
 					Authorization: `Bearer ${access_token}`,
 				},
 			})
+			// TODO: deprecated, find another way to fetch data
 			.toPromise()
 			.catch((err) => {
 				console.log(err);

@@ -1,13 +1,13 @@
-import { Module } from "@nestjs/common";
-import { ConnectionService } from "./connection.service";
-import { ConnectionController } from "@modules/connection/connection.controller";
-import { UserService } from "@modules/user/user.service";
-import { SequelizeModule } from "@nestjs/sequelize";
-import { JwtModule } from "@nestjs/jwt";
-import { ConfigModule, ConfigService } from "@nestjs/config";
-import { AuthModule } from "@modules/auth/auth.module";
-import { HttpModule } from "@nestjs/axios";
 import { ConnectionModel } from "@models/connection.model";
+import { AuthModule } from "@modules/auth/auth.module";
+import { ConnectionController } from "@modules/connection/connection.controller";
+import { UsersService } from "@modules/users/users.service";
+import { HttpModule } from "@nestjs/axios";
+import { Module } from "@nestjs/common";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { JwtModule } from "@nestjs/jwt";
+import { SequelizeModule } from "@nestjs/sequelize";
+import { ConnectionService } from "./connection.service";
 
 @Module({
 	imports: [
@@ -23,7 +23,7 @@ import { ConnectionModel } from "@models/connection.model";
 		HttpModule,
 	],
 	controllers: [ConnectionController],
-	providers: [ConnectionService, UserService],
+	providers: [ConnectionService, UsersService],
 	exports: [ConnectionService, SequelizeModule, JwtModule],
 })
 export class ConnectionModule {}
