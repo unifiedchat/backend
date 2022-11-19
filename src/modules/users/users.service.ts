@@ -13,7 +13,7 @@ import * as argon2 from "argon2";
 import { Op } from "sequelize";
 
 @Injectable()
-export class UserService {
+export class UsersService {
 	constructor(
 		@InjectModel(UserModel)
 		private readonly userModel: typeof UserModel,

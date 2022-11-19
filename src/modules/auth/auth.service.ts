@@ -3,30 +3,28 @@ import { PatchPasswordDTO } from "@dto/patch-password.dto";
 import { RegenerateTokenDTO } from "@dto/regenerate-token.dto";
 import { SignupDTO } from "@dto/signup.dto";
 import { UserModel } from "@models/user.model";
-import { UserService } from "@modules/user/user.service";
+import { UsersService } from "@modules/users/users.service";
 import {
 	BadRequestException,
 	ConflictException,
 	HttpStatus,
 	Injectable,
 } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
 import { InjectModel } from "@nestjs/sequelize";
 import * as argon2 from "argon2";
 
 @Injectable()
 export class AuthService {
 	constructor(
-		private readonly userService: UserService,
+		private readonly usersService: UsersService,
 		@InjectModel(UserModel)
 		private readonly userModel: typeof UserModel,
-		private readonly jwt: JwtService,
 	) {}
 
 	public async signup(
 		signupDTO: SignupDTO,
 	): Promise<UnifiedChat.APIRes<UnifiedChat.APIUser>> {
-		const apiUser = await this.userService.createUser(signupDTO);
+		const apiUser = await this.usersService.createUser(signupDTO);
 
 		return {
 			statusCode: HttpStatus.CREATED,
@@ -65,7 +63,7 @@ export class AuthService {
 			old_password_again,
 		}: PatchPasswordDTO,
 	): Promise<UnifiedChat.APIRes<boolean>> {
-		const user = await this.userService.findDetailedUserByID(id);
+		const user = await this.usersService.findDetailedUserByID(id);
 
 		const isValid = await argon2.verify(user.password, old_password);
 		if (!isValid) throw new ConflictException("Invalid password");
@@ -98,12 +96,12 @@ export class AuthService {
 		{ id }: UnifiedChat.APIUser,
 		{ password }: RegenerateTokenDTO,
 	): Promise<UnifiedChat.APIRes<UnifiedChat.APIUser>> {
-		const user = await this.userService.findDetailedUserByID(id);
+		const user = await this.usersService.findDetailedUserByID(id);
 
 		const isValid = await argon2.verify(user.password, password);
 		if (!isValid) throw new ConflictException("Invalid password");
 
-		const access_token = this.userService.generateToken({
+		const access_token = this.usersService.generateToken({
 			id: user.id,
 			permissions: user.permissions,
 		});

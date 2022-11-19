@@ -20,6 +20,7 @@
 		"noFallthroughCasesInSwitch": false,
 		"paths": {
 			"@dto/*": ["src/dto/*"],
+			"@entities/*": ["src/entities/*"],
 			"@decorators/*": ["src/decorators/*"],
 			"@modules/*": ["src/modules/*"],
 			"@guards/*": ["src/guards/*"],

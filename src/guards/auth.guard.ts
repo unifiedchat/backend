@@ -1,4 +1,4 @@
-import { UserService } from "@modules/user/user.service";
+import { UsersService } from "@modules/users/users.service";
 import {
 	CanActivate,
 	ExecutionContext,
@@ -11,7 +11,7 @@ import { SHARED } from "@shared";
 @Injectable()
 export class AuthGuard implements CanActivate {
 	constructor(
-		private readonly userService: UserService,
+		private readonly usersService: UsersService,
 		private readonly reflector: Reflector,
 	) {}
 
@@ -28,7 +28,7 @@ export class AuthGuard implements CanActivate {
 			? token.match(/[^Bearer]\S+/g)[0].trim()
 			: token;
 
-		const user = await this.userService.findUserByToken(token);
+		const user = await this.usersService.findUserByToken(token);
 		if (!SHARED.Permissions.has(user.permissions, flags))
 			throw new UnauthorizedException("Insufficient permissions.");
 

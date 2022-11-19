@@ -15,5 +15,9 @@ declare global {
 			permissions: number;
 			access_token: string;
 		}
+
+		enum ConnectionType {
+			YOUTUBE,
+		}
 	}
 }

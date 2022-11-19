@@ -1,11 +1,11 @@
+import { UserModel } from "@models/user.model";
+import { AuthController } from "@modules/auth/auth.controller";
+import { AuthService } from "@modules/auth/auth.service";
+import { UsersService } from "@modules/users/users.service";
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
 import { SequelizeModule } from "@nestjs/sequelize";
-import { UserModel } from "@models/user.model";
-import { UserService } from "@modules/user/user.service";
-import { AuthController } from "@modules/auth/auth.controller";
-import { AuthService } from "@modules/auth/auth.service";
 
 @Module({
 	imports: [
@@ -19,7 +19,7 @@ import { AuthService } from "@modules/auth/auth.service";
 		}),
 	],
 	controllers: [AuthController],
-	providers: [AuthService, UserService],
+	providers: [AuthService, UsersService],
 	exports: [AuthService, SequelizeModule],
 })
 export class AuthModule {}
