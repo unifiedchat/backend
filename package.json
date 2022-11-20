@@ -49,6 +49,7 @@
 		"perman": "^1.0.2",
 		"pg": "^8.8.0",
 		"pg-hstore": "^2.3.4",
+		"redis": "^4.5.0",
 		"reflect-metadata": "^0.1.13",
 		"rimraf": "^3.0.2",
 		"rxjs": "^7.5.7",

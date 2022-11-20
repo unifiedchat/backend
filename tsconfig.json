@@ -21,6 +21,7 @@
 		"paths": {
 			"@dto/*": ["src/dto/*"],
 			"@entities/*": ["src/entities/*"],
+			"@utils/*": ["src/utils/*"],
 			"@decorators/*": ["src/decorators/*"],
 			"@modules/*": ["src/modules/*"],
 			"@guards/*": ["src/guards/*"],

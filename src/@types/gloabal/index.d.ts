@@ -19,5 +19,9 @@ declare global {
 		enum ConnectionType {
 			YOUTUBE,
 		}
+
+		enum RedisPrefix {
+			USERS = "users",
+		}
 	}
 }

@@ -11,6 +11,7 @@ import {
 	Injectable,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
+import { set } from "@utils/redis";
 import * as argon2 from "argon2";
 
 @Injectable()
@@ -41,17 +42,25 @@ export class AuthService {
 			where: {
 				username,
 			},
+			include: ["id", "permissions", "access_token"],
 		});
 		if (!user) throw new ConflictException("User not found");
 
 		const isValid = await argon2.verify(user.password, password);
 		if (!isValid) throw new ConflictException("Invalid password");
 
-		return {
+		const apiUser = {
 			id: user.id,
 			permissions: user.permissions,
 			access_token: user.access_token,
 		};
+
+		set<UnifiedChat.APIUser>(
+			`${UnifiedChat.RedisPrefix.USERS}/${user.id}`,
+			apiUser,
+		);
+
+		return apiUser;
 	}
 
 	public async patchPassword(
@@ -109,14 +118,21 @@ export class AuthService {
 		user.access_token = access_token;
 		await user.save();
 
+		const apiUser = {
+			id: user.id,
+			permissions: user.permissions,
+			access_token,
+		};
+
+		set<UnifiedChat.APIUser>(
+			`${UnifiedChat.RedisPrefix.USERS}/${user.id}`,
+			apiUser,
+		);
+
 		return {
 			statusCode: HttpStatus.OK,
 			message: "Token regenerated",
-			data: {
-				id: user.id,
-				permissions: user.permissions,
-				access_token,
-			},
+			data: apiUser,
 		};
 	}
 }

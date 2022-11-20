@@ -16,6 +16,7 @@ const env = cleanEnv(process.env, {
 	GOOGLE_CLIENT_SECRET: str(),
 	GOOGLE_REDIRECT_URI: str(),
 	SECRET: str(),
+	REDIS_URL: str(),
 });
 
 export const factory = () => {
@@ -40,6 +41,7 @@ export const factory = () => {
 		},
 		SECRET: env.SECRET,
 		EPOCH: new Date("2022-11-15T00:00:00Z").getTime(),
+		REDIS_URL: env.REDIS_URL,
 	};
 };
 

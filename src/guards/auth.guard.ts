@@ -6,6 +6,7 @@ import {
 	UnauthorizedException,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
+import { JwtService } from "@nestjs/jwt";
 import { SHARED } from "@shared";
 
 @Injectable()
@@ -13,6 +14,7 @@ export class AuthGuard implements CanActivate {
 	constructor(
 		private readonly usersService: UsersService,
 		private readonly reflector: Reflector,
+		private readonly jwt: JwtService,
 	) {}
 
 	async canActivate(ctx: ExecutionContext): Promise<boolean> {
@@ -28,11 +30,16 @@ export class AuthGuard implements CanActivate {
 			? token.match(/[^Bearer]\S+/g)[0].trim()
 			: token;
 
-		const user = await this.usersService.findUserByToken(token);
-		if (!SHARED.Permissions.has(user.permissions, flags))
+		const tokenUser = this.jwt.decode(token) as UnifiedChat.APIUser;
+		if (!tokenUser)
+			throw new UnauthorizedException("Invalid access token.");
+
+		const apiUser = await this.usersService.findUserByID(tokenUser.id);
+
+		if (!SHARED.Permissions.has(apiUser.permissions, flags))
 			throw new UnauthorizedException("Insufficient permissions.");
 
-		req.user = user;
+		req.user = apiUser;
 
 		return true;
 	}

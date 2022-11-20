@@ -1,14 +1,10 @@
-import { LoginDTO } from "@dto/login.dto";
 import { SignupDTO } from "@dto/signup.dto";
 import { UserModel } from "@models/user.model";
-import {
-	ConflictException,
-	Injectable,
-	UnauthorizedException,
-} from "@nestjs/common";
+import { ConflictException, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { InjectModel } from "@nestjs/sequelize";
 import { SHARED } from "@shared";
+import { get, set } from "@utils/redis";
 import * as argon2 from "argon2";
 import { Op } from "sequelize";
 
@@ -30,34 +26,35 @@ export class UsersService {
 		return token;
 	}
 
-	public async findUserByToken(token: string): Promise<UnifiedChat.APIUser> {
-		const user = await this.userModel.findOne({
-			where: {
-				access_token: token,
-			},
-		});
-		if (!user) throw new UnauthorizedException("Invalid access token");
-
-		return {
-			id: user.id,
-			access_token: user.access_token,
-			permissions: user.permissions,
-		};
-	}
-
 	public async findUserByID(id: string): Promise<UnifiedChat.APIUser> {
-		const user = await this.userModel.findOne({
-			where: {
-				id,
-			},
-		});
-		if (!user) throw new ConflictException("User not found");
+		let cachedUser = await get<UnifiedChat.APIUser>(
+			`${UnifiedChat.RedisPrefix.USERS}/${id}`,
+		);
+		if (!cachedUser) {
+			const user = await this.userModel.findOne({
+				where: {
+					id,
+				},
+				include: ["id", "permissions", "access_token"],
+			});
 
-		return {
-			id: user.id,
-			permissions: user.permissions,
-			access_token: user.access_token,
-		};
+			if (!user) throw new ConflictException("User not found");
+
+			const apiUser = {
+				id,
+				permissions: user.permissions,
+				access_token: user.access_token,
+			};
+
+			cachedUser = apiUser;
+
+			set<UnifiedChat.APIUser>(
+				`${UnifiedChat.RedisPrefix.USERS}/${id}`,
+				apiUser,
+			);
+		}
+
+		return cachedUser;
 	}
 
 	public async findDetailedUserByID(id: string): Promise<UserModel> {
@@ -80,6 +77,7 @@ export class UsersService {
 			where: {
 				[Op.or]: [{ mail }, { username }],
 			},
+			include: ["id"],
 		});
 		if (conflicted) throw new ConflictException("User already exists");
 
@@ -96,31 +94,17 @@ export class UsersService {
 			access_token,
 		});
 
-		return {
+		const apiUser = {
 			id,
 			permissions: user.permissions,
 			access_token,
 		};
-	}
 
-	public async authenticateUser({
-		username,
-		password,
-	}: LoginDTO): Promise<UnifiedChat.APIUser> {
-		const user = await this.userModel.findOne({
-			where: {
-				username,
-			},
-		});
-		if (!user) throw new ConflictException("User not found");
+		set<UnifiedChat.APIUser>(
+			`${UnifiedChat.RedisPrefix.USERS}/${id}`,
+			apiUser,
+		);
 
-		const isValid = await argon2.verify(user.password, password);
-		if (!isValid) throw new ConflictException("Invalid password");
-
-		return {
-			id: user.id,
-			permissions: user.permissions,
-			access_token: user.access_token,
-		};
+		return apiUser;
 	}
 }
