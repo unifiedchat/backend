@@ -10,7 +10,7 @@ import {
 	NotFoundException,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
-import { SHARED } from "@shared";
+import { ConnectionType, SHARED } from "@shared";
 import { AxiosResponse } from "axios";
 
 @Injectable()
@@ -28,7 +28,7 @@ export class ConnectionService {
 		const conflicted = await this.connectionModel.findOne({
 			where: {
 				user: id,
-				platform: UnifiedChat.ConnectionType.YOUTUBE,
+				platform: ConnectionType.YOUTUBE,
 			},
 		});
 
@@ -62,7 +62,7 @@ export class ConnectionService {
 		const model = await this.connectionModel.create({
 			id: SHARED.Snowflake.generate(),
 			user: id,
-			platform: UnifiedChat.ConnectionType.YOUTUBE,
+			platform: ConnectionType.YOUTUBE,
 			display_name: channel.snippet.title,
 			medium_thumbnail: channel.snippet.thumbnails.medium.url,
 			published_at: channel.snippet.publishedAt,

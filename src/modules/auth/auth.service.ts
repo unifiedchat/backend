@@ -11,6 +11,7 @@ import {
 	Injectable,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
+import { RedisPrefix } from "@shared";
 import { set } from "@utils/redis";
 import * as argon2 from "argon2";
 
@@ -42,7 +43,7 @@ export class AuthService {
 			where: {
 				username,
 			},
-			include: ["id", "permissions", "access_token"],
+			attributes: ["id", "permissions", "access_token", "password"],
 		});
 		if (!user) throw new ConflictException("User not found");
 
@@ -55,10 +56,7 @@ export class AuthService {
 			access_token: user.access_token,
 		};
 
-		set<UnifiedChat.APIUser>(
-			`${UnifiedChat.RedisPrefix.USERS}/${user.id}`,
-			apiUser,
-		);
+		set<UnifiedChat.APIUser>(`${RedisPrefix.USERS}/${user.id}`, apiUser);
 
 		return apiUser;
 	}
@@ -124,10 +122,7 @@ export class AuthService {
 			access_token,
 		};
 
-		set<UnifiedChat.APIUser>(
-			`${UnifiedChat.RedisPrefix.USERS}/${user.id}`,
-			apiUser,
-		);
+		set<UnifiedChat.APIUser>(`${RedisPrefix.USERS}/${user.id}`, apiUser);
 
 		return {
 			statusCode: HttpStatus.OK,

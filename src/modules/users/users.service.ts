@@ -3,7 +3,7 @@ import { UserModel } from "@models/user.model";
 import { ConflictException, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { InjectModel } from "@nestjs/sequelize";
-import { SHARED } from "@shared";
+import { RedisPrefix, SHARED } from "@shared";
 import { get, set } from "@utils/redis";
 import * as argon2 from "argon2";
 import { Op } from "sequelize";
@@ -28,14 +28,14 @@ export class UsersService {
 
 	public async findUserByID(id: string): Promise<UnifiedChat.APIUser> {
 		let cachedUser = await get<UnifiedChat.APIUser>(
-			`${UnifiedChat.RedisPrefix.USERS}/${id}`,
+			`${RedisPrefix.USERS}/${id}`,
 		);
 		if (!cachedUser) {
 			const user = await this.userModel.findOne({
 				where: {
 					id,
 				},
-				include: ["id", "permissions", "access_token"],
+				attributes: ["id", "permissions", "access_token"],
 			});
 
 			if (!user) throw new ConflictException("User not found");
@@ -48,10 +48,7 @@ export class UsersService {
 
 			cachedUser = apiUser;
 
-			set<UnifiedChat.APIUser>(
-				`${UnifiedChat.RedisPrefix.USERS}/${id}`,
-				apiUser,
-			);
+			set<UnifiedChat.APIUser>(`${RedisPrefix.USERS}/${id}`, apiUser);
 		}
 
 		return cachedUser;
@@ -77,7 +74,7 @@ export class UsersService {
 			where: {
 				[Op.or]: [{ mail }, { username }],
 			},
-			include: ["id"],
+			attributes: ["id"],
 		});
 		if (conflicted) throw new ConflictException("User already exists");
 
@@ -100,10 +97,7 @@ export class UsersService {
 			access_token,
 		};
 
-		set<UnifiedChat.APIUser>(
-			`${UnifiedChat.RedisPrefix.USERS}/${id}`,
-			apiUser,
-		);
+		set<UnifiedChat.APIUser>(`${RedisPrefix.USERS}/${id}`, apiUser);
 
 		return apiUser;
 	}

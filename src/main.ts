@@ -7,6 +7,7 @@ import {
 	NestFastifyApplication,
 } from "@nestjs/platform-fastify";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { pubClient } from "@utils/redis";
 import * as morgan from "morgan";
 import { AppModule } from "./app.module";
 
@@ -51,6 +52,8 @@ async function bootstrap() {
 	SwaggerModule.setup("api", app, document, {
 		explorer: true,
 	});
+
+	await pubClient.connect();
 
 	await app.listen(CONFIG.PORT, "0.0.0.0");
 }
