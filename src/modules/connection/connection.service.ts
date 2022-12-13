@@ -27,7 +27,7 @@ export class ConnectionService {
 	): Promise<UnifiedChat.APIRes<string>> {
 		const conflicted = await this.connectionModel.findOne({
 			where: {
-				user: id,
+				user_id: id,
 				platform: ConnectionType.YOUTUBE,
 			},
 		});
@@ -61,12 +61,15 @@ export class ConnectionService {
 
 		const model = await this.connectionModel.create({
 			id: SHARED.Snowflake.generate(),
-			user: id,
+			user_id: id,
 			platform: ConnectionType.YOUTUBE,
+			channel_id: channel.id,
 			display_name: channel.snippet.title,
 			medium_thumbnail: channel.snippet.thumbnails.medium.url,
 			published_at: channel.snippet.publishedAt,
 			expires_in: response.data.expires_in,
+			subscriber_count: channel.statistics.subscriberCount,
+			view_count: channel.statistics.viewCount,
 			access_token: response.data.access_token,
 		});
 

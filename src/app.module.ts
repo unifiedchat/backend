@@ -1,13 +1,14 @@
-import { factory } from "@config";
-import { AuthModule } from "@modules/auth/auth.module";
-import { ConnectionModule } from "@modules/connection/connection.module";
-import { HealthModule } from "@modules/health/health.module";
-import { UsersModule } from "@modules/users/users.module";
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
 import { SequelizeModule } from "@nestjs/sequelize";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
+import { ChatModule } from "@modules/chat/chat.module";
+import { factory } from "@config";
+import { AuthModule } from "@modules/auth/auth.module";
+import { ConnectionModule } from "@modules/connection/connection.module";
+import { HealthModule } from "@modules/health/health.module";
+import { UsersModule } from "@modules/users/users.module";
 
 @Module({
 	imports: [
@@ -37,6 +38,7 @@ import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 		HealthModule,
 		AuthModule,
 		UsersModule,
+		ChatModule,
 	],
 	providers: [
 		{

@@ -1,4 +1,5 @@
 import { Column, DataType, Model, Table } from "sequelize-typescript";
+import { ConnectionType } from "@shared";
 
 @Table({
 	comment: "Connection Model",
@@ -23,11 +24,17 @@ export class ConnectionModel extends Model {
 	@Column({
 		allowNull: false,
 		comment: "Platform",
-		type: DataType.ENUM,
+		type: DataType.INTEGER,
 		unique: false,
-		values: ["youtube"],
 	})
-	platform: string;
+	platform: number;
+
+	@Column({
+		allowNull: false,
+		comment: "Channel ID",
+		type: DataType.STRING,
+	})
+	channel_id: string;
 
 	@Column({
 		allowNull: false,
@@ -56,6 +63,20 @@ export class ConnectionModel extends Model {
 		type: DataType.INTEGER,
 	})
 	expires_in: number;
+
+	@Column({
+		allowNull: false,
+		comment: "Channel Subscriber Count",
+		type: DataType.INTEGER,
+	})
+	subscriber_count: number;
+
+	@Column({
+		allowNull: true,
+		comment: "Channel View Count",
+		type: DataType.INTEGER,
+	})
+	view_count: number;
 
 	@Column({
 		allowNull: false,
