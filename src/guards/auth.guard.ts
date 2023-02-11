@@ -40,6 +40,10 @@ export class AuthGuard implements CanActivate {
 			? token.match(/[^Bearer]\S+/g)[0].trim()
 			: token;
 
+		if (!token || token === "undefined" || token === "null") {
+			throw new UnauthorizedException("Access token expected.");
+		}
+
 		const tokenUser = this.jwt.decode(token) as UnifiedChat.APIUser;
 		if (!tokenUser) {
 			if (socketConnection) {
